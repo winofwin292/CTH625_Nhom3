@@ -48,6 +48,7 @@ data/**/*.pdf
 models/*.joblib
 models/*.pkl
 !models/.gitkeep
+corpus-train.zip
 
 # Cache / file tạm
 .cache/

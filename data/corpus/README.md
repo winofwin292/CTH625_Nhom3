@@ -14,6 +14,18 @@ Full-text train **không** đưa lên Git (bản quyền). Nhóm gửi zip riên
 
 Trên Git chỉ giữ README, `samples/` (văn bản nhóm soạn), stopwords, và `.gitkeep`.
 
+Nén lại (từ gốc repo; dùng `tar` để giữ `data/…` và `models/…` trong zip — `Compress-Archive` làm dẹt thư mục):
+
+```powershell
+tar -a -cf corpus-train.zip data/corpus/baibao_khoahoc data/corpus/hanh_chinh data/corpus/manifest.jsonl models/tfidf_vectorizer.joblib
+```
+
+Giải nén vào gốc repo:
+
+```powershell
+tar -xf corpus-train.zip
+```
+
 ## Bài báo khoa học
 
 Full-text PDF từ tạp chí open access trên [VJOL](https://vjol.info.vn) (Cục Thông tin, Thống kê — Bộ KH&CN). Giao thức: **OAI-PMH** + URL `/article/download/`. Không cào HTML trang báo điện tử. Vietnews đã bỏ (quá ngắn, thể loại báo chí).
