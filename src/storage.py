@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import shutil
+import sys
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from uuid import uuid4
 
 from src.config import chroma_path
@@ -40,17 +43,94 @@ class _HashEmbeddingFunction:
         return vectors
 
 
+def _patch_sqlite() -> None:
+    import sqlite3
+
+    if sqlite3.sqlite_version_info >= (3, 35, 0):
+        return
+    try:
+        import pysqlite3 as sqlite3_new
+    except ImportError:
+        return
+    sys.modules["sqlite3"] = sqlite3_new
+
+
+def _clear_chroma_cache() -> None:
+    try:
+        from chromadb.api.client import SharedSystemClient
+
+        SharedSystemClient.clear_system_cache()
+    except Exception:
+        pass
+
+
+def _reset_chroma_files(path: Path) -> None:
+    if not path.exists():
+        return
+    for child in path.iterdir():
+        if child.name == ".gitkeep":
+            continue
+        if child.is_dir():
+            shutil.rmtree(child, ignore_errors=True)
+        else:
+            child.unlink(missing_ok=True)
+
+
+def _open_persistent(path: Path):
+    import chromadb
+    from chromadb.config import Settings
+
+    return chromadb.PersistentClient(
+        path=str(path),
+        settings=Settings(anonymized_telemetry=False, allow_reset=True),
+    )
+
+
+def _open_ephemeral():
+    import chromadb
+    from chromadb.config import Settings
+
+    return chromadb.EphemeralClient(
+        settings=Settings(anonymized_telemetry=False),
+    )
+
+
 def _get_collection():
     global _client, _collection
-    if _collection is None:
-        import chromadb
+    if _collection is not None:
+        return _collection
 
-        _client = chromadb.PersistentClient(path=str(chroma_path()))
+    _patch_sqlite()
+    path = chroma_path()
+    last_error: Exception | None = None
+    for attempt, reset in enumerate((False, True)):
+        try:
+            _clear_chroma_cache()
+            if reset:
+                _reset_chroma_files(path)
+            _client = _open_persistent(path)
+            _collection = _client.get_or_create_collection(
+                COLLECTION_NAME,
+                embedding_function=_HashEmbeddingFunction(),
+            )
+            return _collection
+        except Exception as exc:
+            last_error = exc
+            _client = None
+            _collection = None
+
+    try:
+        _clear_chroma_cache()
+        _client = _open_ephemeral()
         _collection = _client.get_or_create_collection(
             COLLECTION_NAME,
             embedding_function=_HashEmbeddingFunction(),
         )
-    return _collection
+        return _collection
+    except Exception:
+        if last_error is not None:
+            raise last_error
+        raise
 
 
 def format_vn_time(iso_text: str) -> str:
@@ -77,8 +157,8 @@ def save_run(
     keyword_text = "; ".join(f"{term}:{score:.4f}" for term, score in keywords)
     metadata = {
         "method": method,
-        "keywords": keyword_text[:1000],
-        "summary": (summary or " ")[:1000],
+        "keywords": keyword_text[:4000],
+        "summary": (summary or " ")[:4000],
         "source": source[:200],
         "created_at": datetime.now(timezone.utc).isoformat(),
     }

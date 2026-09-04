@@ -54,7 +54,7 @@ KeyBERT (Maarten Grootendorst) không sinh từ mới. Các bước:
 
 Code dùng thư viện `keybert` với backbone [bkai-foundation-models/vietnamese-bi-encoder](https://huggingface.co/bkai-foundation-models/vietnamese-bi-encoder) (đúng tên đề bài nêu). Model card ghi **input phải đã word-segment**; từ đa tiếng viết `học_sinh`. Backbone của encoder này là PhoBERT-base-v2.
 
-`use_mmr=True` là Maximal Marginal Relevance có sẵn trong KeyBERT: giảm trùng cụm gần giống nhau. Đây là tham số thư viện, không phải bước đề bài bắt buộc.
+Ứng viên là **từng token underthesea** (đã là từ/cụm từ tiếng Việt), không ghép n-gram hai từ đứng cạnh nhau — ghép kiểu đó tạo cụm không có nghĩa (ví dụ *analytics kiến trúc*). Encoder chỉ nhúng tối đa 80 ứng viên. `use_mmr=True` là Maximal Marginal Relevance có sẵn trong KeyBERT.
 
 ## 4. BERT / PhoBERT (để đọc báo cáo)
 
