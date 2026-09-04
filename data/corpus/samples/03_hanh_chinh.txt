@@ -1,0 +1,11 @@
+CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+Độc lập - Tự do - Hạnh phúc
+
+THÔNG BÁO
+Về việc nộp báo cáo đồ án học phần Xử lý ngôn ngữ tự nhiên
+
+Phòng Đào tạo sau đại học thông báo học viên hoàn thành đồ án đúng hạn theo đề cương học phần. Hồ sơ nộp gồm một file báo cáo Word, một tập tin mã nguồn huấn luyện hoặc tinh chỉnh mô hình, và một tập tin mã nguồn ứng dụng web.
+
+Ứng dụng web cần giao diện trực quan và lưu trữ dữ liệu bằng hệ quản trị cơ sở dữ liệu phù hợp. Học viên tự chuẩn bị ngữ liệu tiếng Việt, thực hiện tách từ, loại bỏ từ dừng, trích xuất từ khóa và sinh đoạn tóm tắt.
+
+Mọi thắc mắc gửi về bộ môn trước ngày hết hạn nộp. Học viên chịu trách nhiệm về tính trung thực của báo cáo và mã nguồn.

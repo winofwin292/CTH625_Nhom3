@@ -1,0 +1,33 @@
+---
+description: Bối cảnh đồ án CTH625 đề tài 7 — tóm tắt văn bản dựa trên từ khóa
+alwaysApply: true
+---
+
+# CTH625 Nhóm 3 — đề tài 7
+
+Web tóm tắt một văn bản tiếng Việt bằng từ khóa + LLM. Nguồn yêu cầu: `docs/DoAnMonHoc_2026.docx`.
+
+## Bám đề bài
+
+- Tiền xử lý: underthesea (tách từ + POS N/V/A). Không thay bằng pyvi vì pyvi không có POS.
+- Phương pháp 1: TF-IDF trong `src/keywords_tfidf.py`.
+- Phương pháp 2: KeyBERT + `bkai-foundation-models/vietnamese-bi-encoder` trong `src/keywords_keybert.py`. Input encoder phải đã tách từ, từ đa tiếng dùng gạch dưới.
+- Tóm tắt: từ khóa đưa vào prompt (`src/summarizer.py`). LLM `Qwen/Qwen2.5-7B-Instruct` chỉ qua Hugging Face Inference Providers. Không load 7B local / Ollama.
+- CSDL: ChromaDB (`src/storage.py`).
+- Web: `streamlit_app.py`. Train: `notebooks/train_keyword_extraction.ipynb` (local và Colab).
+
+Web và notebook chỉ gọi `src.pipeline.run` / `extract_keywords`. Không viết thuật toán song song.
+
+## Không bịa
+
+Đề bài 7 không chỉ định dataset. Corpus: 80 bài báo khoa học tiếng Việt full-text từ VJOL (khcn, jte), OAI-PMH + PDF. Không dùng Vietnews. Không có tập từ khóa vàng nên không fine-tune encoder. Full-text corpus và `tfidf_vectorizer.joblib` không commit Git (gửi zip riêng).
+
+LLM: Hugging Face only. Token và Featherless do từng thành viên tự cấu hình (không commit `.env`).
+
+Tên thành viên, URL GitHub deploy, hạn nộp/GVHD: chưa có, không điền giả.
+
+Stopwords: giữ file từ https://github.com/stopwords/vietnamese-stopwords; chỉ cải tiến cách khớp (Unicode, gạch dưới, bỏ punct/số).
+
+## Comment
+
+Docstring tiếng Việt cho hàm public (mục đích). Không comment dòng tự giải thích, không để code chết.

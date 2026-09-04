@@ -1,0 +1,12 @@
+---
+description: Quy ước Python cho pipeline đề tài 7
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python
+
+- Import nặng (KeyBERT, sentence-transformers) chỉ nằm trong `src/keywords_keybert.py`, lazy load khi gọi phương pháp 2.
+- Một luồng trích xuất: `pipeline.extract_keywords` → `extract_tfidf` hoặc `extract_keybert`.
+- Đường dẫn và biến môi trường đọc từ `src/config.py`, không hard-code token.
+- LLM chỉ qua Hugging Face Inference Providers (`src/summarizer.py`). Không thêm Ollama hay load model 7B local.

@@ -1,0 +1,5 @@
+Tiểu luận này trình bày vai trò của từ khóa trong bài toán tóm tắt văn bản tiếng Việt. Tóm tắt rút trích chọn câu có sẵn trong tài liệu, còn tóm tắt sinh có thể viết lại nội dung bằng mô hình ngôn ngữ lớn.
+
+Khi dùng mô hình ngôn ngữ lớn, danh sách từ khóa đóng vai trò neo ngữ nghĩa: chúng ràng buộc câu trả lời bám sát chủ đề, giảm nguy cơ mô hình thêm chi tiết không có trong văn bản gốc. Hai phương pháp trích xuất từ khóa được đối chiếu là TF-IDF kết hợp từ loại và KeyBERT với mô hình nhúng tiếng Việt.
+
+Kết quả định tính trên các văn bản mẫu cho thấy TF-IDF thiên về từ xuất hiện nổi bật theo thống kê, trong khi KeyBERT thiên về cụm từ gần nghĩa với toàn văn. Việc kết hợp cả hai giúp người dùng nhìn thấy ý chính từ hai góc độ khác nhau.

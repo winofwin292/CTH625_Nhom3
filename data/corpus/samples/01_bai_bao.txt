@@ -1,0 +1,5 @@
+Nghiên cứu xử lý ngôn ngữ tự nhiên cho tiếng Việt đang nhận được sự quan tâm của nhiều trường đại học và viện nghiên cứu. Các mô hình ngôn ngữ lớn giúp máy tính hiểu câu hỏi, tóm tắt tài liệu và hỗ trợ dịch thuật, nhưng vẫn cần bước tiền xử lý phù hợp với đặc thù tiếng Việt.
+
+Khác với tiếng Anh, tiếng Việt là ngôn ngữ đơn lập: ranh giới từ không trùng với khoảng trắng. Một từ có thể gồm nhiều tiếng, vì vậy tách từ và gán nhãn từ loại là hai bước then chốt trước khi trích xuất từ khóa hoặc tính trọng số TF-IDF.
+
+Nhiều nhóm nghiên cứu kết hợp vector nhúng câu với thuật toán xếp hạng từ khóa để người đọc nắm ý chính nhanh hơn. Hướng tiếp cận này hữu ích với bài báo khoa học, văn bản hành chính và tài liệu học tập dài.

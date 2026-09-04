@@ -1,0 +1,57 @@
+# Secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Notebook / IDE / OS
+.ipynb_checkpoints/
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ChromaDB runtime
+data/chroma/*
+!data/chroma/.gitkeep
+data/raw/
+*.sqlite3
+
+# Corpus train (full-text + manifest). Gửi zip riêng, không đưa lên Git.
+data/corpus/baibao_khoahoc/*
+!data/corpus/baibao_khoahoc/.gitkeep
+data/corpus/hanh_chinh/*
+!data/corpus/hanh_chinh/.gitkeep
+data/corpus/tieu_luan/*.txt
+data/corpus/tieu_luan/*.pdf
+data/corpus/manifest.jsonl
+data/**/*.pdf
+
+# Artifact TF-IDF (fit trên corpus trên). Cùng zip với dữ liệu train.
+models/*.joblib
+models/*.pkl
+!models/.gitkeep
+
+# Cache / file tạm
+.cache/
+.huggingface/
+huggingface/
+docs/_extract_tmp.txt
+*.log
