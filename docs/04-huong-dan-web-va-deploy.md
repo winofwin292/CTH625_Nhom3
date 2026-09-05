@@ -38,7 +38,7 @@ streamlit run streamlit_app.py
 
 Đổi `.env` khi app đang chạy thì token cũ vẫn còn trong RAM: **tắt hẳn** process (Ctrl+C) rồi chạy lại lệnh Streamlit. File watcher đã tắt (`fileWatcherType = "none"` trong `.streamlit/config.toml`) để Streamlit không quét gói `transformers` (traceback `torchvision` giả). Sửa code Python thì bấm **Rerun** trên web hoặc restart. Không nhân đôi khối `[theme]` trong file cấu hình — TOML lỗi thì Streamlit bỏ cả file và watcher bật lại.
 
-`models/tfidf_vectorizer.joblib` và full-text corpus **không** nằm trên Git (zip riêng). Giải nén vào đúng thư mục rồi mới demo phương pháp 1. Chưa có file joblib thì TF-IDF tính IDF tạm trên từng văn bản đang nhập.
+`models/tfidf_vectorizer.joblib` nằm trên Git (Cloud nạp được). Full-text corpus **không** commit — zip riêng. Chưa có file joblib thì TF-IDF tính IDF tạm trên từng văn bản đang nhập.
 
 ## 3. Hạn mức Hugging Face (Inference Providers)
 
@@ -107,4 +107,4 @@ LLM_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 
 5. Deploy. Lần đầu TF-IDF nhẹ. KeyBERT tải encoder; nếu app bị kill vì RAM, demo phương pháp 1 trên Cloud và quay video phương pháp 2 trên máy/Colab.
 
-Cloud đọc: `requirements.txt`, `streamlit_app.py`, `src/`, `data/stopwords/`, `data/corpus/samples/`. File train (`baibao_khoahoc/`, `hanh_chinh/`, `tfidf_vectorizer.joblib`) không có trên Git — bổ sung bằng zip hoặc chạy notebook trên máy. Không commit `.env` hay `.streamlit/secrets.toml`.
+Cloud đọc: `requirements.txt`, `streamlit_app.py`, `src/`, `data/stopwords/`, `data/corpus/samples/`, `models/tfidf_vectorizer.joblib`. Full-text `baibao_khoahoc/` và `hanh_chinh/` không có trên Git. Không commit `.env` hay `.streamlit/secrets.toml`.

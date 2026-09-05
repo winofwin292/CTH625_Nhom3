@@ -44,10 +44,10 @@ data/corpus/tieu_luan/*.pdf
 data/corpus/manifest.jsonl
 data/**/*.pdf
 
-# Artifact TF-IDF (fit trên corpus trên). Cùng zip với dữ liệu train.
-models/*.joblib
+# Artifact TF-IDF: commit vectorizer để Cloud/demo; full-text vẫn zip riêng.
 models/*.pkl
 !models/.gitkeep
+!models/tfidf_vectorizer.joblib
 corpus-train.zip
 
 # Cache / file tạm

@@ -10,14 +10,15 @@ Full-text train **không** đưa lên Git (bản quyền). Nhóm gửi zip riên
 - `data/corpus/hanh_chinh/*.txt` (+ `manifest.jsonl` nếu có)
 - `data/corpus/tieu_luan/*.txt` (nếu có)
 - `data/corpus/manifest.jsonl`
-- `models/tfidf_vectorizer.joblib`
 
-Trên Git chỉ giữ README, `samples/` (văn bản nhóm soạn), stopwords, và `.gitkeep`.
+`models/tfidf_vectorizer.joblib` **commit Git** (không chứa full-text, để Cloud nạp TF-IDF đã fit). Fit lại trên máy rồi commit file này khi corpus đổi.
 
-Nén lại (từ gốc repo; dùng `tar` để giữ `data/…` và `models/…` trong zip — `Compress-Archive` làm dẹt thư mục):
+Trên Git còn README, `samples/` (văn bản nhóm soạn), stopwords, và `.gitkeep`.
+
+Nén corpus (từ gốc repo; dùng `tar` để giữ `data/…` trong zip — `Compress-Archive` làm dẹt thư mục):
 
 ```powershell
-tar -a -cf corpus-train.zip data/corpus/baibao_khoahoc data/corpus/hanh_chinh data/corpus/manifest.jsonl models/tfidf_vectorizer.joblib
+tar -a -cf corpus-train.zip data/corpus/baibao_khoahoc data/corpus/hanh_chinh data/corpus/manifest.jsonl
 ```
 
 Giải nén vào gốc repo:

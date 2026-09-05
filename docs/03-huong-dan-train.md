@@ -11,7 +11,7 @@ File train: `notebooks/train_keyword_extraction.ipynb`.
 
 ## Chuẩn bị corpus
 
-Đề tài 7 không chỉ định dataset. Corpus fit TF-IDF: **80 bài báo khoa học** VJOL + mẫu hành chính/QPPL từ dataset vbpl trên Hugging Face + 3 file minh họa. Full-text này **không commit Git** (zip riêng). Tiểu luận dài **chưa có** trong train; thêm thủ công vào `data/corpus/tieu_luan/` rồi chạy lại notebook. Chi tiết: `data/corpus/README.md`.
+Đề tài 7 không chỉ định dataset. Corpus fit TF-IDF: **80 bài báo khoa học** VJOL + mẫu hành chính/QPPL từ dataset vbpl trên Hugging Face + 3 file minh họa. Full-text **không commit Git** (zip riêng). `models/tfidf_vectorizer.joblib` **commit** để web/Cloud nạp. Tiểu luận dài **chưa có** trong train; thêm thủ công vào `data/corpus/tieu_luan/` rồi chạy lại notebook. Chi tiết: `data/corpus/README.md`.
 
 Không dùng tin tức Vietnews (quá ngắn, không phải bài báo khoa học). Không fine-tune encoder vì không có tập từ khóa vàng.
 

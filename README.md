@@ -16,7 +16,7 @@ Nhóm 3, học phần CTH625 Xử lý ngôn ngữ tự nhiên. Bốn thành viê
 
 Tóm tắt LLM chỉ qua Hugging Face. Mỗi người clone repo tự tạo token (không commit `.env`).
 
-Corpus train và `models/tfidf_vectorizer.joblib` **không** nằm trên Git — giải nén zip riêng (xem `data/corpus/README.md`).
+Corpus train (full-text) **không** nằm trên Git — giải nén zip riêng (xem `data/corpus/README.md`). File `models/tfidf_vectorizer.joblib` **có** trên Git để Streamlit Cloud dùng TF-IDF đã fit.
 
 ## Chạy nhanh
 

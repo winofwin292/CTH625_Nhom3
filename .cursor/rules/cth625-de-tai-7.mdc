@@ -20,7 +20,7 @@ Web và notebook chỉ gọi `src.pipeline.run` / `extract_keywords`. Không vi�
 
 ## Không bịa
 
-Đề bài 7 không chỉ định dataset. Corpus: 80 bài báo khoa học tiếng Việt full-text từ VJOL (khcn, jte), OAI-PMH + PDF. Không dùng Vietnews. Không có tập từ khóa vàng nên không fine-tune encoder. Full-text corpus và `tfidf_vectorizer.joblib` không commit Git (gửi zip riêng).
+Đề bài 7 không chỉ định dataset. Corpus: 80 bài báo khoa học tiếng Việt full-text từ VJOL (khcn, jte), OAI-PMH + PDF. Không dùng Vietnews. Không có tập từ khóa vàng nên không fine-tune encoder. Full-text corpus không commit Git (gửi zip riêng). `models/tfidf_vectorizer.joblib` được commit để Cloud/demo.
 
 LLM: Hugging Face only. Token và Featherless do từng thành viên tự cấu hình (không commit `.env`).
 
