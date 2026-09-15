@@ -9,10 +9,9 @@ from __future__ import annotations
 from sklearn.feature_extraction.text import CountVectorizer
 
 from src.config import EMBEDDING_MODEL
-from src.preprocess import keep_token, load_stopwords, to_phobert_token, tokenize_words
+from src.preprocess import keep_keyword_unit, keep_token, load_stopwords, to_phobert_token, tokenize_words
 
 _keybert_model = None
-MAX_UNIGRAM_SYLLABLES = 4
 MAX_CANDIDATES = 80
 
 
@@ -27,27 +26,8 @@ def get_keybert():
     return _keybert_model
 
 
-def _syllable_count(token: str) -> int:
-    return len(token.replace("_", " ").split())
-
-
-def _is_ascii_term(token: str) -> bool:
-    core = token.replace("_", "")
-    if len(core) < 2:
-        return False
-    return all(ord(char) < 128 for char in core)
-
-
 def _keep_unigram(token: str) -> bool:
-    if not token or token.replace("_", "").isdigit():
-        return False
-    bits = token.replace("_", " ").split()
-    if len(bits) >= 2 and bits[0].lower() == bits[1].lower():
-        return False
-    if _is_ascii_term(token):
-        return True
-    count = _syllable_count(token)
-    return 2 <= count <= MAX_UNIGRAM_SYLLABLES
+    return keep_keyword_unit(token)
 
 
 def _analyzer(doc: str) -> list[str]:
@@ -77,8 +57,16 @@ def extract_keybert(text: str, top_n: int = 10) -> list[tuple[str, float]]:
     pairs = get_keybert().extract_keywords(
         segmented,
         vectorizer=vectorizer,
-        top_n=top_n,
+        top_n=max(top_n * 3, 24),
         use_mmr=True,
         diversity=0.5,
     )
-    return [(term.replace("_", " "), _score(score)) for term, score in pairs]
+    results: list[tuple[str, float]] = []
+    for term, score in pairs:
+        units = term.replace("_", " ").split()
+        if not units or not all(keep_keyword_unit(to_phobert_token(unit)) for unit in units):
+            continue
+        results.append((term.replace("_", " "), _score(score)))
+        if len(results) >= top_n:
+            break
+    return results

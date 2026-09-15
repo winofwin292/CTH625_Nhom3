@@ -32,5 +32,4 @@ Trên Linux/macOS: `source .venv/bin/activate` và `cp .env.example .env`. Đi�
 
 ## Việc chưa làm ở bước này
 
-- Báo cáo Word (nộp sau).
-- Tên thành viên, GitHub để deploy Streamlit, hạn nộp / GVHD.
+- Báo cáo Word soạn trong `docs/BaoCao/` (thư mục này **không** commit Git). Còn thiếu tên thành viên, GVHD, hạn nộp, URL Streamlit Cloud.

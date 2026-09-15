@@ -52,6 +52,38 @@ def to_phobert_text(tokens: list[str]) -> str:
     return " ".join(to_phobert_token(t) for t in tokens if t.strip())
 
 
+MAX_KEYWORD_SYLLABLES = 4
+
+
+def syllable_count(token: str) -> int:
+    return len(token.replace("_", " ").split())
+
+
+def is_technical_ascii(token: str) -> bool:
+    """Thuật ngữ ASCII: viết tắt (có chữ hoa/số/gạch) hoặc từ tiếng Anh dài — không phải ‘hai’, ‘sinh’."""
+    core = token.replace("_", "")
+    if len(core) < 2:
+        return False
+    if not all(ord(char) < 128 for char in core):
+        return False
+    if any(char.isupper() or char.isdigit() for char in core) or "-" in core:
+        return True
+    return core.isascii() and core.isalpha() and len(core) >= 6
+
+
+def keep_keyword_unit(token: str) -> bool:
+    """Một đơn vị từ khóa: từ tiếng Việt 2–4 tiếng, hoặc thuật ngữ ASCII kỹ thuật."""
+    if not token or token.replace("_", "").isdigit():
+        return False
+    bits = token.replace("_", " ").split()
+    if len(bits) >= 2 and bits[0].lower() == bits[1].lower():
+        return False
+    if is_technical_ascii(token):
+        return True
+    count = syllable_count(token)
+    return 2 <= count <= MAX_KEYWORD_SYLLABLES
+
+
 def _stopword_variants(word: str) -> set[str]:
     folded = normalize_text(word).lower()
     variants = {folded, folded.replace(" ", "_"), folded.replace("_", " ")}

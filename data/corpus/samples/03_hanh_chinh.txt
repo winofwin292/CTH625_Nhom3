@@ -8,4 +8,8 @@ Phòng Đào tạo sau đại học thông báo học viên hoàn thành đồ �
 
 Ứng dụng web cần giao diện trực quan và lưu trữ dữ liệu bằng hệ quản trị cơ sở dữ liệu phù hợp. Học viên tự chuẩn bị ngữ liệu tiếng Việt, thực hiện tách từ, loại bỏ từ dừng, trích xuất từ khóa và sinh đoạn tóm tắt.
 
-Mọi thắc mắc gửi về bộ môn trước ngày hết hạn nộp. Học viên chịu trách nhiệm về tính trung thực của báo cáo và mã nguồn.
+Báo cáo cần trình bày kiến trúc hệ thống, cơ sở lý thuyết (Transformer, mô hình ngôn ngữ lớn, BERT) và kỹ thuật tiền xử lý tiếng Việt. Phần đánh giá thực nghiệm ghi rõ những gì đã đo được và những gì chưa đo vì thiếu tập gán nhãn.
+
+Đề tài tóm tắt một văn bản cần cho phép người dùng nhập hoặc tải tệp, nhận danh sách từ khóa và đoạn tóm tắt. Từ khóa dùng làm chỉ dẫn ngữ nghĩa khi gọi mô hình mã nguồn mở; không yêu cầu huấn luyện lại mô hình ngôn ngữ lớn trên máy cá nhân.
+
+Mọi thắc mắc gửi về bộ môn trước ngày hết hạn nộp. Học viên chịu trách nhiệm về tính trung thực của báo cáo và mã nguồn. Bản scan không có lớp chữ không dùng để minh họa đọc tệp PDF.

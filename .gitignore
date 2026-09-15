@@ -50,6 +50,9 @@ models/*.pkl
 !models/tfidf_vectorizer.joblib
 corpus-train.zip
 
+# Báo cáo Word (nộp riêng, không commit)
+docs/BaoCao/
+
 # Cache / file tạm
 .cache/
 .huggingface/

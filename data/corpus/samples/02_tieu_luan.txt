@@ -1,5 +1,11 @@
-Tiểu luận này trình bày vai trò của từ khóa trong bài toán tóm tắt văn bản tiếng Việt. Tóm tắt rút trích chọn câu có sẵn trong tài liệu, còn tóm tắt sinh có thể viết lại nội dung bằng mô hình ngôn ngữ lớn.
+Tiểu luận này trình bày vai trò của từ khóa trong bài toán tóm tắt văn bản tiếng Việt. Tóm tắt rút trích chọn câu có sẵn trong tài liệu, còn tóm tắt sinh có thể viết lại nội dung bằng mô hình ngôn ngữ lớn. Hai hướng này không loại trừ nhau: từ khóa có thể vừa làm mục lục ý, vừa làm ràng buộc khi sinh.
 
-Khi dùng mô hình ngôn ngữ lớn, danh sách từ khóa đóng vai trò neo ngữ nghĩa: chúng ràng buộc câu trả lời bám sát chủ đề, giảm nguy cơ mô hình thêm chi tiết không có trong văn bản gốc. Hai phương pháp trích xuất từ khóa được đối chiếu là TF-IDF kết hợp từ loại và KeyBERT với mô hình nhúng tiếng Việt.
+Khi dùng mô hình ngôn ngữ lớn, danh sách từ khóa đóng vai trò neo ngữ nghĩa. Chúng ràng buộc câu trả lời bám sát chủ đề và giảm nguy cơ mô hình thêm chi tiết không có trong văn bản gốc. Nếu bỏ neo, bản tóm tắt dễ trôi sang kiến thức chung của mô hình thay vì bám tài liệu đang xét.
 
-Kết quả định tính trên các văn bản mẫu cho thấy TF-IDF thiên về từ xuất hiện nổi bật theo thống kê, trong khi KeyBERT thiên về cụm từ gần nghĩa với toàn văn. Việc kết hợp cả hai giúp người dùng nhìn thấy ý chính từ hai góc độ khác nhau.
+Hai phương pháp trích xuất từ khóa được đối chiếu là TF-IDF kết hợp từ loại và KeyBERT với mô hình nhúng tiếng Việt. TF-IDF cần ngữ liệu để học độ hiếm của từ; KeyBERT dùng encoder đã tiền huấn luyện nên không phụ thuộc tập đó, nhưng lần chạy đầu nặng hơn vì phải nạp mô hình nhúng.
+
+Kết quả định tính trên các văn bản mẫu cho thấy TF-IDF thiên về từ xuất hiện nổi bật theo thống kê, trong khi KeyBERT thiên về cụm từ gần nghĩa với toàn văn. Việc nhìn song song hai danh sách giúp người dùng kiểm tra ý chính từ hai góc độ khác nhau trước khi đọc đoạn tóm tắt.
+
+Phần thực nghiệm của tiểu luận nhấn mạnh giới hạn: không có tập từ khóa vàng nên không fine-tune encoder và không báo precision. Đánh giá tóm tắt chủ yếu là đọc tay: đoạn văn có mạch không, có bịa tên riêng hoặc số liệu không, và các câu có gắn với neo hay không.
+
+Cuối cùng, tiểu luận khuyến nghị giữ cùng một quy trình tiền xử lý cho cả hai phương pháp. Tách từ tiếng Việt và từ dừng phải đứng trước xếp hạng; nếu không, so sánh TF-IDF với KeyBERT sẽ lẫn lỗi tách từ vào khác biệt thuật toán.

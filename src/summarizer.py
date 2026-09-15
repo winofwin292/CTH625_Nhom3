@@ -6,7 +6,8 @@ from src.config import hf_provider, hf_token, llm_model
 
 SYSTEM_PROMPT = (
     "Bạn là trợ lý tóm tắt văn bản tiếng Việt. "
-    "Chỉ dùng thông tin có trong văn bản. Không bịa thêm sự kiện."
+    "Chỉ dùng thông tin có trong văn bản. Không bịa thêm sự kiện, số liệu, "
+    "tên người, tên tổ chức hay địa danh nếu chúng không xuất hiện trong văn bản."
 )
 
 
@@ -16,8 +17,10 @@ def build_user_prompt(text: str, keywords: list[str], n_sentences: int) -> str:
         f"Từ khóa cốt lõi (neo ngữ nghĩa): {joined}\n\n"
         f"Văn bản:\n{text}\n\n"
         "Yêu cầu:\n"
-        f"- Viết khoảng {n_sentences} câu tóm tắt bằng tiếng Việt, mạch lạc.\n"
-        "- Ưu tiên các ý gắn với danh sách từ khóa, vẫn phải trung thực với văn bản.\n"
+        f"- Viết đúng khoảng {n_sentences} câu tiếng Việt, mạch lạc, thành một đoạn.\n"
+        "- Mỗi câu phải gắn với ít nhất một từ khóa trong danh sách neo "
+        "(dùng đúng ý của từ khóa, không bắt buộc lặp nguyên chữ).\n"
+        "- Không thêm số liệu, tên riêng hay sự kiện không có trong văn bản.\n"
         "- Không liệt kê lại từ khóa. Không dùng gạch đầu dòng."
     )
 

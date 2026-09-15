@@ -8,7 +8,14 @@ import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from src.config import TFIDF_VECTORIZER_PATH
-from src.preprocess import content_tokens, tokens_as_document, tokenize_sentences
+from src.preprocess import (
+    content_tokens,
+    keep_keyword_unit,
+    to_phobert_token,
+    tokens_as_document,
+    tokenize_sentences,
+    tokenize_words,
+)
 
 NGRAM_RANGE = (1, 2)
 
@@ -54,7 +61,24 @@ def load_tfidf(path: Path | None = None) -> TfidfVectorizer | None:
     return joblib.load(file_path)
 
 
+def _adjacent_bigrams(text: str) -> set[str]:
+    tokens = [to_phobert_token(token).lower() for token in tokenize_words(text) if token.strip()]
+    return {f"{tokens[i]} {tokens[i + 1]}" for i in range(len(tokens) - 1)}
+
+
+def _keep_tfidf_term(feature: str, adjacent: set[str]) -> bool:
+    parts = feature.split()
+    if len(parts) == 1:
+        return keep_keyword_unit(parts[0])
+    if len(parts) != 2:
+        return False
+    if feature.lower() not in adjacent:
+        return False
+    return keep_keyword_unit(parts[0]) and keep_keyword_unit(parts[1])
+
+
 def _top_from_vector(model: TfidfVectorizer, text: str, top_n: int) -> list[tuple[str, float]]:
+    """Lấy top-k sau khi bỏ unigram quá ngắn và bigram không kề nhau trên văn bản gốc."""
     prepared = prepare_document(text)
     if not prepared:
         return []
@@ -63,9 +87,15 @@ def _top_from_vector(model: TfidfVectorizer, text: str, top_n: int) -> list[tupl
     scored = list(zip(row.col, row.data))
     scored.sort(key=lambda item: item[1], reverse=True)
     names = model.get_feature_names_out()
+    adjacent = _adjacent_bigrams(text)
     results: list[tuple[str, float]] = []
-    for index, score in scored[:top_n]:
-        results.append((names[index].replace("_", " "), float(score)))
+    for index, score in scored:
+        feature = names[index]
+        if not _keep_tfidf_term(feature, adjacent):
+            continue
+        results.append((feature.replace("_", " "), float(score)))
+        if len(results) >= top_n:
+            break
     return results
 
 
