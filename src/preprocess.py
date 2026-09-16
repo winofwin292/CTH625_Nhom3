@@ -53,6 +53,9 @@ def to_phobert_text(tokens: list[str]) -> str:
 
 
 MAX_KEYWORD_SYLLABLES = 4
+_TECH_SHORT = {"ai", "iot", "nlp", "llm", "rag", "ocr", "pos"}
+_ASCII_NOISE = {"cv", "tt", "tp", "vt", "email", "tsp"}
+_FUNCTION_IN_COMPOUND = {"và", "của", "cho", "là", "các", "những", "được", "này", "đó"}
 
 
 def syllable_count(token: str) -> int:
@@ -60,11 +63,21 @@ def syllable_count(token: str) -> int:
 
 
 def is_technical_ascii(token: str) -> bool:
-    """Thuật ngữ ASCII: viết tắt (có chữ hoa/số/gạch) hoặc từ tiếng Anh dài — không phải ‘hai’, ‘sinh’."""
-    core = token.replace("_", "")
+    """Thuật ngữ ASCII: viết tắt đủ dài (BERT, KHCNTT) hoặc tiếng Anh — không phải CV, TP, Email."""
+    if "@" in token or re.search(r"[A-Za-z0-9]\.[\s_]*[A-Za-z0-9]", token):
+        return False
+    core = re.sub(r"[^\w\-]", "", token.replace("_", ""))
     if len(core) < 2:
         return False
     if not all(ord(char) < 128 for char in core):
+        return False
+    folded = core.lower()
+    if folded in _TECH_SHORT:
+        return True
+    if folded in _ASCII_NOISE:
+        return False
+    letters = re.sub(r"[^A-Za-z]", "", core)
+    if letters.isupper() and len(letters) < 4:
         return False
     if any(char.isupper() or char.isdigit() for char in core) or "-" in core:
         return True
@@ -75,11 +88,17 @@ def keep_keyword_unit(token: str) -> bool:
     """Một đơn vị từ khóa: từ tiếng Việt 2–4 tiếng, hoặc thuật ngữ ASCII kỹ thuật."""
     if not token or token.replace("_", "").isdigit():
         return False
+    if "@" in token or re.search(r"[A-Za-z0-9]\.[\s_]*[A-Za-z0-9]", token):
+        return False
     bits = token.replace("_", " ").split()
+    if not bits:
+        return False
     if len(bits) >= 2 and bits[0].lower() == bits[1].lower():
         return False
     if is_technical_ascii(token):
         return True
+    if any(bit.lower() in _FUNCTION_IN_COMPOUND for bit in bits):
+        return False
     count = syllable_count(token)
     return 2 <= count <= MAX_KEYWORD_SYLLABLES
 

@@ -42,7 +42,7 @@ def _score(value: object) -> float:
 def extract_keybert(text: str, top_n: int = 10) -> list[tuple[str, float]]:
     stopwords = load_stopwords()
     tokens = [
-        to_phobert_token(token)
+        to_phobert_token(token).lower()
         for token in tokenize_words(text)
         if keep_token(token, stopwords)
     ]
@@ -63,10 +63,10 @@ def extract_keybert(text: str, top_n: int = 10) -> list[tuple[str, float]]:
     )
     results: list[tuple[str, float]] = []
     for term, score in pairs:
-        units = term.replace("_", " ").split()
-        if not units or not all(keep_keyword_unit(to_phobert_token(unit)) for unit in units):
+        unit = to_phobert_token(term)
+        if not keep_keyword_unit(unit):
             continue
-        results.append((term.replace("_", " "), _score(score)))
+        results.append((unit.replace("_", " "), _score(score)))
         if len(results) >= top_n:
             break
     return results

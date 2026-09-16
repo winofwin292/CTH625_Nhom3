@@ -44,8 +44,20 @@ with st.sidebar:
         "Tóm tắt LLM cần `HF_TOKEN` (Hugging Face Inference Providers)."
     )
 
+if "file_uploader_rev" not in st.session_state:
+    st.session_state.file_uploader_rev = 0
+
+
 def _on_file_change() -> None:
     st.session_state["_file_loading"] = True
+
+
+def _clear_upload() -> None:
+    st.session_state.file_uploader_rev += 1
+    st.session_state.pop("_upload_key", None)
+    st.session_state.pop("_upload_text", None)
+    st.session_state.pop("_upload_name", None)
+    st.session_state["_file_loading"] = False
 
 
 def _read_uploaded(uploaded) -> None:
@@ -74,14 +86,22 @@ def _read_uploaded(uploaded) -> None:
     )
 
 
-uploaded = st.file_uploader(
-    "Tải file .txt hoặc .pdf",
-    type=["txt", "pdf"],
-    on_change=_on_file_change,
-)
+up_col, clear_col = st.columns([4, 1])
+with up_col:
+    uploaded = st.file_uploader(
+        "Tải file .txt hoặc .pdf",
+        type=["txt", "pdf"],
+        key=f"file_up_{st.session_state.file_uploader_rev}",
+        on_change=_on_file_change,
+    )
+with clear_col:
+    if st.button("Xóa file / chọn lại", width="stretch"):
+        _clear_upload()
+        st.rerun()
 st.caption(
     "Sau khi chọn file, đợi dòng «Đã đọc» bên dưới — lúc đó Streamlit đang tải file lên, "
-    "chưa phải bước trích từ khóa. Chỉ bấm nút khi đã thấy «Đã đọc»."
+    "chưa phải bước trích từ khóa. Chỉ bấm nút khi đã thấy «Đã đọc». "
+    "Muốn tải file khác: bấm «Xóa file / chọn lại» rồi chọn lại."
 )
 if st.session_state.get("_file_loading") and uploaded is None:
     st.info("Đang tải file từ trình duyệt lên máy chủ…")
@@ -146,7 +166,7 @@ if result is not None:
                     "điểm": [round(score, 4) for _, score in result.keywords],
                 },
                 hide_index=True,
-                use_container_width=True,
+                width="stretch",
                 column_config={
                     "điểm": st.column_config.NumberColumn(format="%.4f"),
                 },

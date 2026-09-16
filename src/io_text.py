@@ -51,13 +51,38 @@ def repair_pdf_extracted_text(text: str) -> str:
     return "\n\n".join(pieces).strip()
 
 
+_VN_LETTER = (
+    r"A-Za-zÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢ"
+    r"ÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợ"
+    r"ùúủũụưừứửữựỳýỷỹỵđ"
+)
+_JOIN_LETTER_NEXT = re.compile(rf"(?<=\s)([{_VN_LETTER}])\s+(?=[{_VN_LETTER}])")
+_JOIN_LETTER_PREV = re.compile(rf"(?<=[{_VN_LETTER}])\s+([{_VN_LETTER}])(?=\s|$|[.,;:!?])")
+_JOIN_ONSET = re.compile(
+    rf"(?<=\s)((?:gi|th|nh|ng|ph|kh|tr|qu|ch|gh|ngh))\s+(?=[{_VN_LETTER}])",
+    re.IGNORECASE,
+)
+
+
+def _join_isolated_letters(text: str) -> str:
+    """Nối chữ cái đứng một mình do PDF layout ('h ọc' → 'học', 'gia n' → 'gian')."""
+    previous = None
+    while previous != text:
+        previous = text
+        text = _JOIN_LETTER_NEXT.sub(r"\1", text)
+        text = _JOIN_LETTER_PREV.sub(r"\1", text)
+        text = _JOIN_ONSET.sub(r"\1", text)
+    return text
+
+
 def _extract_pdf_page(page) -> str:
     try:
         layout = page.extract_text(extraction_mode="layout") or ""
     except Exception:
         layout = ""
     if layout.strip():
-        return re.sub(r"[ \t]{2,}", " ", layout)
+        collapsed = re.sub(r"[ \t]{2,}", " ", layout)
+        return _join_isolated_letters(collapsed)
     raw = page.extract_text() or ""
     return repair_pdf_extracted_text(raw)
 
