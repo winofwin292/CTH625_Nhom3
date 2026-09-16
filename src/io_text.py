@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+from io import BytesIO
 from pathlib import Path
 
 from pypdf import PdfReader
@@ -22,11 +24,47 @@ def read_txt_bytes(data: bytes) -> str:
     raise InputError("Không đọc được file .txt. Hãy lưu file ở encoding UTF-8.")
 
 
-def read_pdf_bytes(data: bytes) -> str:
-    from io import BytesIO
+def repair_pdf_extracted_text(text: str) -> str:
+    """Nối mảnh chữ PDF (mỗi glyph một dòng) thành từ tiếng Việt liền.
 
+    Dòng trống (cột / đoạn) được giữ làm ranh giới, không dính hai cụm khác nhau.
+    """
+    pieces: list[str] = []
+    buf = ""
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            if buf:
+                pieces.append(buf)
+                buf = ""
+            continue
+        if not buf:
+            buf = line
+            continue
+        last = buf.split()[-1]
+        if len(line) <= 3 or len(last) <= 2:
+            buf += line
+        else:
+            buf += " " + line
+    if buf:
+        pieces.append(buf)
+    return "\n\n".join(pieces).strip()
+
+
+def _extract_pdf_page(page) -> str:
+    try:
+        layout = page.extract_text(extraction_mode="layout") or ""
+    except Exception:
+        layout = ""
+    if layout.strip():
+        return re.sub(r"[ \t]{2,}", " ", layout)
+    raw = page.extract_text() or ""
+    return repair_pdf_extracted_text(raw)
+
+
+def read_pdf_bytes(data: bytes) -> str:
     reader = PdfReader(BytesIO(data))
-    pages = [page.extract_text() or "" for page in reader.pages]
+    pages = [_extract_pdf_page(page) for page in reader.pages]
     text = "\n".join(pages).strip()
     if not text:
         raise InputError("File PDF không có lớp văn bản (có thể là bản scan).")

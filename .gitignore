@@ -53,6 +53,9 @@ corpus-train.zip
 # Báo cáo Word (nộp riêng, không commit)
 docs/BaoCao/
 
+# File kiểm thử local (PDF/txt cá nhân, không commit)
+docs/KiemThu/
+
 # Cache / file tạm
 .cache/
 .huggingface/
