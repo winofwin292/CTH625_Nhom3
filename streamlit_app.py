@@ -47,6 +47,11 @@ with st.sidebar:
 
 if "file_uploader_rev" not in st.session_state:
     st.session_state.file_uploader_rev = 0
+if "text_area_rev" not in st.session_state:
+    st.session_state.text_area_rev = 0
+
+SOURCE_FILE = "file"
+SOURCE_TYPED = "typed"
 
 
 def _on_file_change() -> None:
@@ -59,6 +64,10 @@ def _clear_upload() -> None:
     st.session_state.pop("_upload_text", None)
     st.session_state.pop("_upload_name", None)
     st.session_state["_file_loading"] = False
+
+
+def _clear_typed() -> None:
+    st.session_state.text_area_rev += 1
 
 
 def _read_uploaded(uploaded) -> None:
@@ -87,6 +96,35 @@ def _read_uploaded(uploaded) -> None:
     )
 
 
+def _active_source(typed_text: str) -> tuple[str | None, str, str]:
+    """Trả về (mã nguồn, nhãn hiển thị, văn bản sẽ gửi vào pipeline)."""
+    file_text = (st.session_state.get("_upload_text") or "").strip()
+    typed_clean = (typed_text or "").strip()
+    has_file = bool(file_text)
+    has_typed = bool(typed_clean)
+    file_name = st.session_state.get("_upload_name") or "file"
+    file_label = f"File: {file_name} ({len(file_text)} ký tự)"
+    typed_label = f"Ô nhập văn bản ({len(typed_clean)} ký tự)"
+
+    if has_file and has_typed:
+        choice = st.radio(
+            "Có cả file và ô nhập — chọn nguồn sẽ dùng",
+            options=[SOURCE_FILE, SOURCE_TYPED],
+            format_func=lambda value: file_label if value == SOURCE_FILE else typed_label,
+            horizontal=True,
+            key="source_choice",
+        )
+        if choice == SOURCE_FILE:
+            return SOURCE_FILE, file_label, file_text
+        return SOURCE_TYPED, typed_label, typed_clean
+    if has_file:
+        return SOURCE_FILE, file_label, file_text
+    if has_typed:
+        return SOURCE_TYPED, typed_label, typed_clean
+    return None, "Chưa có văn bản", ""
+
+
+st.subheader("Nguồn văn bản")
 uploaded = st.file_uploader(
     "Tải file .txt hoặc .pdf",
     type=["txt", "pdf"],
@@ -95,7 +133,7 @@ uploaded = st.file_uploader(
 )
 st.caption(
     "Sau khi chọn file, đợi dòng «Đã đọc» bên dưới — lúc đó Streamlit đang tải file lên, "
-    "chưa phải bước trích từ khóa. Chỉ bấm nút khi đã thấy «Đã đọc»."
+    "chưa phải bước trích từ khóa."
 )
 if st.session_state.get("_file_loading") and uploaded is None:
     st.info("Đang tải file từ trình duyệt lên máy chủ…")
@@ -110,20 +148,30 @@ else:
     st.session_state.pop("_upload_name", None)
     st.session_state["_file_loading"] = False
 
-with st.form("extract_form", clear_on_submit=False, border=False):
-    typed = st.text_area(
-        "Hoặc nhập văn bản tiếng Việt",
-        height=220,
-        placeholder="Dán văn bản tại đây...",
-    )
-    submitted = st.form_submit_button("Trích xuất và tóm tắt", type="primary")
+typed = st.text_area(
+    "Hoặc nhập văn bản tiếng Việt",
+    height=220,
+    placeholder="Dán văn bản tại đây...",
+    key=f"typed_text_{st.session_state.text_area_rev}",
+)
+if st.button("Xóa văn bản đã nhập", disabled=not (typed or "").strip()):
+    _clear_typed()
+    st.rerun()
+
+source_code, source_label, raw_text = _active_source(typed)
+if source_code is None:
+    st.warning("Chưa có nguồn. Tải file hoặc dán văn bản vào ô nhập.")
+else:
+    st.info(f"Nguồn đang dùng: **{source_label}**")
+
+submitted = st.button("Trích xuất và tóm tắt", type="primary", disabled=source_code is None)
 
 if submitted:
-    source_name = "nhap_lieu"
-    raw_text = typed or ""
-    if st.session_state.get("_upload_text"):
-        raw_text = st.session_state["_upload_text"]
-        source_name = st.session_state.get("_upload_name") or source_name
+    source_name = (
+        st.session_state.get("_upload_name")
+        if source_code == SOURCE_FILE
+        else "nhap_lieu"
+    )
     if not raw_text.strip():
         st.warning("Hãy nhập văn bản hoặc đợi file hiện «Đã đọc» rồi bấm lại.")
         st.stop()
@@ -148,11 +196,13 @@ if submitted:
     progress.update(label="Xong", state="complete")
     st.session_state["last_result"] = result
     st.session_state["last_source"] = source_name
+    st.session_state["last_source_label"] = source_label
 
 result = st.session_state.get("last_result")
 if result is not None:
-    if st.session_state.get("last_source"):
-        st.caption(f"Kết quả gần nhất: `{st.session_state['last_source']}`")
+    last_label = st.session_state.get("last_source_label") or st.session_state.get("last_source")
+    if last_label:
+        st.success(f"Kết quả gần nhất lấy từ **{last_label}**")
     left, right = st.columns(2)
     with left:
         st.subheader("Từ khóa")
