@@ -18,7 +18,7 @@ Trên Git còn README, `samples/` (văn bản nhóm soạn), stopwords, và `.gi
 Nén corpus (từ gốc repo; dùng `tar` để giữ `data/…` trong zip — `Compress-Archive` làm dẹt thư mục):
 
 ```powershell
-tar -a -cf corpus-train.zip data/corpus/baibao_khoahoc data/corpus/hanh_chinh data/corpus/manifest.jsonl
+tar -a -cf corpus-train.zip data/corpus/baibao_khoahoc data/corpus/hanh_chinh data/corpus/tieu_luan data/corpus/manifest.jsonl
 ```
 
 Giải nén vào gốc repo:
@@ -53,9 +53,15 @@ Script: `python scripts/collect_corpus.py`
 python scripts/collect_hanh_chinh.py
 ```
 
-## Tiểu luận
+## Tiểu luận / luận văn
 
-`data/corpus/tieu_luan/` — **chưa có file train**. Đã quét DSpace ĐHQGHN qua OAI-PMH: metadata mở, PDF toàn văn **đòi đăng nhập**. Không tải được từ máy này. Hướng dẫn sau khi bạn login: `data/corpus/tieu_luan/README.md`.
+`data/corpus/tieu_luan/` — PDF nhóm xin được dùng cho học phần, **không đưa lên Git / internet**. Gộp chung một thư mục (tiểu luận và luận văn cùng dùng cho IDF). Tách chữ:
+
+```bash
+python scripts/extract_tieu_luan.py
+```
+
+Script ghi `.txt` cạnh mỗi PDF (cùng bị gitignore). Bỏ file dưới 8.000 ký tự hoặc gần như không có dấu tiếng Việt. Rồi fit lại notebook.
 
 ## File minh họa (demo web)
 

@@ -62,7 +62,7 @@ Làm theo thứ tự: **thu thập → train lại TF-IDF → restart web**. Kh�
 | --- | --- |
 | Thêm / làm mới bài báo VJOL | `python scripts/collect_corpus.py` |
 | Thêm / làm mới văn bản QPPL | `python scripts/collect_hanh_chinh.py` (bỏ qua ID đã có) |
-| Thêm tiểu luận | Bỏ file `.txt` vào `data/corpus/tieu_luan/` (xem README thư mục đó) |
+| Thêm tiểu luận / luận văn | Bỏ PDF vào `data/corpus/tieu_luan/`, chạy `python scripts/extract_tieu_luan.py` |
 | Fit lại TF-IDF | Mở `notebooks/train_keyword_extraction.ipynb`, chạy các cell fit, ghi `models/tfidf_vectorizer.joblib` |
 | Web nhận vectorizer mới | Restart Streamlit |
 

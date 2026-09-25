@@ -1,4 +1,16 @@
-# Tiểu luận — thêm thủ công (DSpace)
+# Tiểu luận / luận văn
+
+PDF trong thư mục này là tài liệu nhóm được phép dùng cho học phần, **không public**. Git bỏ qua `*.pdf` và `*.txt`.
+
+Tách chữ rồi fit lại TF-IDF:
+
+```bash
+python scripts/extract_tieu_luan.py
+```
+
+Notebook `notebooks/train_keyword_extraction.ipynb` đọc mọi `.txt` dưới `data/corpus/`, kể cả file vừa tách.
+
+## Ghi chú lần quét DSpace (không còn là cách lấy dữ liệu hiện tại)
 
 Script **không** tải được PDF tiểu luận/khóa luận từ DSpace khi chưa đăng nhập. OAI-PMH chỉ trả metadata.
 
