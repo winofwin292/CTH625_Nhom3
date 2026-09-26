@@ -4,7 +4,7 @@
 
 ## Git
 
-Full-text train **không** đưa lên Git (bản quyền). Nhóm gửi zip riêng, giải nén đúng cây thư mục repo:
+Full-text train không đưa lên Git. Gửi zip riêng, giải nén đúng cây thư mục:
 
 - `data/corpus/baibao_khoahoc/*.txt`
 - `data/corpus/hanh_chinh/*.txt` (+ `manifest.jsonl` nếu có)
@@ -13,7 +13,7 @@ Full-text train **không** đưa lên Git (bản quyền). Nhóm gửi zip riên
 
 `models/tfidf_vectorizer.joblib` **commit Git** (không chứa full-text, để Cloud nạp TF-IDF đã fit). Fit lại trên máy rồi commit file này khi corpus đổi.
 
-Trên Git còn README, `samples/` (văn bản nhóm soạn), stopwords, và `.gitkeep`.
+Trên Git còn README, `samples/` (3 file để thử web), stopwords, và `.gitkeep`.
 
 Nén corpus (từ gốc repo; dùng `tar` để giữ `data/…` trong zip — `Compress-Archive` làm dẹt thư mục):
 
@@ -55,7 +55,7 @@ python scripts/collect_hanh_chinh.py
 
 ## Tiểu luận / luận văn
 
-`data/corpus/tieu_luan/` — PDF nhóm xin được dùng cho học phần, **không đưa lên Git / internet**. Gộp chung một thư mục (tiểu luận và luận văn cùng dùng cho IDF). Tách chữ:
+`data/corpus/tieu_luan/` — PDF dùng cho học phần, không đưa lên Git hoặc internet. Tiểu luận và luận văn nằm chung một thư mục để học IDF. Tách chữ:
 
 ```bash
 python scripts/extract_tieu_luan.py
@@ -65,4 +65,4 @@ Script ghi `.txt` cạnh mỗi PDF (cùng bị gitignore). Bỏ file dưới 8.0
 
 ## File minh họa (demo web)
 
-`data/corpus/samples/` — 3 văn bản nhóm soạn (bài ngắn / tiểu luận / hành chính). Dùng thử kiểu đầu vào, không thay corpus train.
+`data/corpus/samples/` — 3 file ngắn (bài báo, tiểu luận, hành chính) để thử web. Không thay corpus train.

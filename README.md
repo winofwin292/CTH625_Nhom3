@@ -1,24 +1,15 @@
-# CTH625 — Đề tài 7: Tóm tắt văn bản dựa trên trích xuất từ khóa
+# Tóm tắt văn bản tiếng Việt theo từ khóa
 
-Nhóm 3, học phần CTH625 Xử lý ngôn ngữ tự nhiên. Bốn thành viên (tên sẽ bổ sung khi nhóm chốt).
+Web nhận một văn bản tiếng Việt (nhập tay, `.txt` hoặc `.pdf`) và trả về danh sách từ khóa cùng đoạn tóm tắt.
 
-Ứng dụng web nhận **một văn bản tiếng Việt** (nhập trực tiếp, `.txt` hoặc `.pdf`), trả về **danh sách từ khóa** và **đoạn tóm tắt**.
-
-## Tài liệu
-
-| File | Đọc khi |
+| Việc | Tài liệu |
 | --- | --- |
-| [docs/04-huong-dan-web-va-deploy.md](docs/04-huong-dan-web-va-deploy.md) | **Cấu hình, chạy lần đầu, hạn mức Hugging Face, cập nhật corpus, train lại, deploy** |
-| [docs/03-huong-dan-train.md](docs/03-huong-dan-train.md) | Chi tiết notebook local / Google Colab |
-| [docs/00-yeu-cau-de-tai.md](docs/00-yeu-cau-de-tai.md) | Yêu cầu nộp bài (rút từ `docs/DoAnMonHoc_2026.docx`) |
-| [docs/01-ly-thuyet.md](docs/01-ly-thuyet.md) | TF-IDF, KeyBERT, PhoBERT, prompt LLM |
-| [docs/02-kien-truc-he-thong.md](docs/02-kien-truc-he-thong.md) | Luồng xử lý, thư mục, lựa chọn kỹ thuật |
+| Chạy web, token, deploy | [docs/04-huong-dan-web-va-deploy.md](docs/04-huong-dan-web-va-deploy.md) |
+| Fit TF-IDF | [docs/03-huong-dan-train.md](docs/03-huong-dan-train.md) |
+| Thư mục và luồng xử lý | [docs/02-kien-truc-he-thong.md](docs/02-kien-truc-he-thong.md) |
+| Corpus | [data/corpus/README.md](data/corpus/README.md) |
 
-Tóm tắt LLM chỉ qua Hugging Face. Mỗi người clone repo tự tạo token (không commit `.env`).
-
-Corpus train (full-text) **không** nằm trên Git — giải nén zip riêng (xem `data/corpus/README.md`). File `models/tfidf_vectorizer.joblib` **có** trên Git để Streamlit Cloud dùng TF-IDF đã fit.
-
-## Chạy nhanh
+## Chạy
 
 ```bash
 python -m venv .venv
@@ -28,8 +19,6 @@ copy .env.example .env
 streamlit run streamlit_app.py
 ```
 
-Trên Linux/macOS: `source .venv/bin/activate` và `cp .env.example .env`. Điền `HF_TOKEN` theo `docs/04`.
+Linux/macOS: `source .venv/bin/activate` và `cp .env.example .env`. Điền `HF_TOKEN` theo `docs/04`. Mở http://localhost:8501.
 
-## Việc chưa làm ở bước này
-
-- Báo cáo Word soạn trong `docs/BaoCao/` (thư mục này **không** commit Git). Còn thiếu tên thành viên, GVHD, hạn nộp, URL Streamlit Cloud.
+Toàn văn dùng để học IDF không có trên Git. File `models/tfidf_vectorizer.joblib` có trên Git để web dùng TF-IDF đã fit.

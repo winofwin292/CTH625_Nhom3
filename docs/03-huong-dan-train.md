@@ -1,56 +1,39 @@
-# Hướng dẫn train — local và Google Colab
+# Fit TF-IDF
 
-**Khi nào train lại** (sau khi thêm corpus, sửa tiền xử lý): xem [docs/04-huong-dan-web-va-deploy.md](04-huong-dan-web-va-deploy.md) mục 4–5. File này chỉ chi tiết notebook.
+Notebook `notebooks/train_keyword_extraction.ipynb` tự chứa code xử lý. Không cần import `src/`.
 
-File train: `notebooks/train_keyword_extraction.ipynb`.
+Việc notebook huấn luyện là fit TF-IDF trên các file `.txt`, rồi ghi `models/tfidf_vectorizer.joblib`. KeyBERT dùng `bkai-foundation-models/vietnamese-bi-encoder` có sẵn, không fine-tune. Qwen không được train trong notebook.
 
-Đề bài yêu cầu **một tập tin mã nguồn huấn luyện/fine-tune** (khuyến khích Colab). Với đề tài 7:
+Nếu `data/corpus/` chỉ còn file trong `samples/`, ô fit giữ joblib đã có. Có thêm `.txt` ngoài `samples/` thì ô fit ghi đè joblib.
 
-- **Huấn luyện có trọng số thật:** fit `TfidfVectorizer` trên corpus, lưu `models/tfidf_vectorizer.joblib`.
-- **Phương pháp 2:** KeyBERT dùng pretrained `vietnamese-bi-encoder`. Đề bài không giao dataset từ khóa vàng, nên notebook **không bịa bước fine-tune**. Nếu nhóm có tập gán nhãn sau này, mới bổ sung fine-tune encoder.
-
-## Chuẩn bị corpus
-
-Đề tài 7 không chỉ định dataset. Corpus fit TF-IDF: **80 bài báo khoa học** VJOL + văn bản hành chính/QPPL + tiểu luận/luận văn trong `data/corpus/tieu_luan/` + 3 file minh họa. Full-text **không commit Git** (zip riêng; tiểu luận không public). `models/tfidf_vectorizer.joblib` **commit** để web/Cloud nạp. Thêm PDF tiểu luận: `python scripts/extract_tieu_luan.py` rồi chạy lại notebook. Chi tiết: `data/corpus/README.md`.
-
-Không dùng tin tức Vietnews (quá ngắn, không phải bài báo khoa học). Không fine-tune encoder vì không có tập từ khóa vàng.
-
-## Cách 1 — Local
+## Local
 
 ```bash
 pip install -r requirements-train.txt
-```
-
-Mở Jupyter từ **thư mục gốc repo**:
-
-```bash
 jupyter notebook notebooks/train_keyword_extraction.ipynb
 ```
 
-Chạy lần lượt các cell. Artifact ghi vào `models/tfidf_vectorizer.joblib`. Web sẽ tự nạp file này.
+1. Ở ô cấu hình, để `DATA_DIR = "data/corpus"` khi dữ liệu nằm trong project. Điền đường dẫn khác nếu file `.txt` ở chỗ khác.
+2. Chạy lần lượt các ô.
+3. Ô cuối mặc định đọc `data/corpus/samples/01_bai_bao.txt`. Đổi `FILE_PATH`, dán `TEXT`, hoặc đặt `METHOD = "keybert"`.
+4. `DO_SUMMARY = True` in thêm tóm tắt khi môi trường có `HF_TOKEN`. Không có token thì vẫn in từ khóa.
 
-## Cách 2 — Google Colab
+Web nạp joblib mới sau khi tắt và chạy lại Streamlit.
 
-1. Upload repo lên Google Drive, **hoặc** push Git rồi clone.
-2. Mở notebook trên Colab.
-3. Cell cấu hình:
+## Google Colab
 
-```python
-COLAB_SOURCE = "drive"   # hoặc "clone"
-DRIVE_PROJECT_PATH = "/content/drive/MyDrive/CTH625_Nhom3"
-REPO_URL = ""            # điền nếu COLAB_SOURCE = "clone"
-```
+Notebook không có ô tiêu đề «Cài đặt». Ô code thứ hai, ngay dưới ô `DATA_DIR`, gắn Drive và cài thư viện.
 
-4. Chạy cell cài gói (chỉ khi `IN_COLAB` là True).
-5. Nếu dùng Drive: cell `drive.mount('/content/drive')` rồi `cd` vào `DRIVE_PROJECT_PATH`.
-6. Fit TF-IDF, thử KeyBERT, lưu `models/` (trên Drive thì file còn sau khi tắt máy).
+1. Đưa dữ liệu lên Drive theo cây sau. File `.txt` nằm trong `corpus`. File từ dừng và joblib nằm cạnh thư mục `data`.
 
-GPU Colab hữu ích khi load `vietnamese-bi-encoder`, không bắt buộc cho TF-IDF.
+   `My Drive/CTH625_Nhom3/data/corpus/`
 
-## Kiểm tra sau train
+   `My Drive/CTH625_Nhom3/data/stopwords/vietnamese-stopwords.txt`
 
-`models/tfidf_vectorizer.joblib` tồn tại. Chạy web, chọn TF-IDF: từ khóa phải lấy IDF từ corpus chứ không chỉ từ các câu trong một file.
+   `My Drive/CTH625_Nhom3/models/tfidf_vectorizer.joblib`
 
-## Không làm trong notebook này
+2. Mở notebook trên Colab. Ô code đầu tiên có `DATA_DIR = "data/corpus"`. Để nguyên khi Drive đúng cây trên. Thư mục khác thì sửa `DATA_DIR` thành đường dẫn đầy đủ, và điền `STOPWORDS_PATH`, `MODEL_PATH` nếu hai file kia không nằm đúng chỗ.
+3. Chọn **Runtime → Run all**. Khi hiện cửa sổ Google Drive, bấm Allow.
+4. Đợi ô fit in số văn bản. Ô cuối trên Colab hiện hộp chọn file `.txt` hoặc `.pdf`, rồi in từ khóa.
 
-- Fine-tune Qwen/Vistral/PhoGPT (đề bài dùng LLM để sinh tóm tắt, không yêu cầu train LLM).
+Muốn dùng KeyBERT: ở ô cuối sửa `METHOD = "tfidf"` thành `METHOD = "keybert"`. Chọn **Runtime → Change runtime type → T4 GPU → Save**. Colab khởi động lại và xóa kết quả đã chạy, nên chọn **Runtime → Run all** lần nữa, rồi Allow Drive nếu được hỏi. TF-IDF không cần GPU.

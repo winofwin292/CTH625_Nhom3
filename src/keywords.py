@@ -1,16 +1,18 @@
-"""Phương pháp 1: TF-IDF + lọc từ loại N/V/A."""
+"""Hai cách lấy từ khóa: TF-IDF và KeyBERT."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
 import joblib
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
-from src.config import TFIDF_VECTORIZER_PATH
-from src.preprocess import (
+from src.config import EMBEDDING_MODEL, TFIDF_VECTORIZER_PATH
+from src.text import (
     content_tokens,
     keep_keyword_unit,
+    keep_token,
+    load_stopwords,
     to_phobert_token,
     tokens_as_document,
     tokenize_sentences,
@@ -115,3 +117,65 @@ def extract_tfidf(text: str, top_n: int = 10, vectorizer: TfidfVectorizer | None
     fallback = _vectorizer()
     fallback.fit(documents)
     return _top_from_vector(fallback, text, top_n)
+
+# --- KeyBERT ---
+_keybert_model = None
+MAX_CANDIDATES = 80
+
+
+def get_keybert():
+    global _keybert_model
+    if _keybert_model is None:
+        from keybert import KeyBERT
+        from sentence_transformers import SentenceTransformer
+
+        encoder = SentenceTransformer(EMBEDDING_MODEL)
+        _keybert_model = KeyBERT(model=encoder)
+    return _keybert_model
+
+
+def _keep_unigram(token: str) -> bool:
+    return keep_keyword_unit(token)
+
+
+def _analyzer(doc: str) -> list[str]:
+    return [token for token in doc.split() if _keep_unigram(token)]
+
+
+def _score(value: object) -> float:
+    item = value.item() if hasattr(value, "item") else value
+    return float(item)
+
+
+def extract_keybert(text: str, top_n: int = 10) -> list[tuple[str, float]]:
+    stopwords = load_stopwords()
+    tokens = [
+        to_phobert_token(token).lower()
+        for token in tokenize_words(text)
+        if keep_token(token, stopwords)
+    ]
+    segmented = " ".join(tokens)
+    if not segmented:
+        return []
+    vectorizer = CountVectorizer(
+        analyzer=_analyzer,
+        lowercase=True,
+        max_features=MAX_CANDIDATES,
+    )
+    pairs = get_keybert().extract_keywords(
+        segmented,
+        vectorizer=vectorizer,
+        top_n=max(top_n * 3, 24),
+        use_mmr=True,
+        diversity=0.5,
+    )
+    results: list[tuple[str, float]] = []
+    for term, score in pairs:
+        unit = to_phobert_token(term)
+        if not keep_keyword_unit(unit):
+            continue
+        results.append((unit.replace("_", " "), _score(score)))
+        if len(results) >= top_n:
+            break
+    return results
+

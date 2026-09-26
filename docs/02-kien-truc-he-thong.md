@@ -10,7 +10,7 @@
 | Baseline | TF-IDF + POS | Đúng phương pháp 1 |
 | Deep learning | KeyBERT + `vietnamese-bi-encoder` | Đúng phương pháp 2 |
 | LLM | Qwen2.5-7B-Instruct | Đúng danh sách đề bài; gọi Hugging Face Inference Providers, không load 7B local |
-| CSDL | ChromaDB | Đúng nhóm vector database được nêu |
+| CSDL | ChromaDB | Đúng loại cơ sở dữ liệu vector được nêu |
 
 Không dùng RAG trong pipeline này. RAG xuất hiện ở mục lý thuyết chung của file Word, không nằm trong mô tả kỹ thuật đề tài 7.
 
@@ -35,7 +35,7 @@ Không dùng RAG trong pipeline này. RAG xuất hiện ở mục lý thuyết c
    giao diện Streamlit + lưu ChromaDB
 ```
 
-Web và notebook **không** tự cài thuật toán song song. Cả hai gọi `src.pipeline.run`.
+Web gọi `src.pipeline.run`. Notebook mang code xử lý bên trong để chạy độc lập sau khi trỏ thư mục dữ liệu.
 
 ## Thư mục
 
@@ -43,13 +43,9 @@ Web và notebook **không** tự cài thuật toán song song. Cả hai gọi `s
 streamlit_app.py          # entry Streamlit Cloud (để ở thư mục gốc)
 src/
   config.py               # đường dẫn, HF_TOKEN, HF_PROVIDER
-  io_text.py              # đọc txt/pdf
-  preprocess.py           # tách từ, stop words, POS
-  keywords_tfidf.py       # fit + extract TF-IDF
-  keywords_keybert.py     # extract KeyBERT (lazy load model)
-  summarizer.py           # prompt + gọi LLM
-  storage.py              # ChromaDB
-  pipeline.py             # run()
+  text.py                 # đọc txt/pdf, tách từ, stop words, POS
+  keywords.py             # TF-IDF và KeyBERT
+  pipeline.py             # tóm tắt, ChromaDB, run()
 notebooks/train_keyword_extraction.ipynb
 data/stopwords/
 data/corpus/              # baibao_khoahoc + hanh_chinh + tieu_luan (nếu có) + samples; fit TF-IDF
@@ -58,9 +54,9 @@ models/                   # tfidf_vectorizer.joblib sau khi train
 
 ## LLM
 
-Nhóm chốt **chỉ Hugging Face Inference Providers** (`HF_TOKEN`, `HF_PROVIDER=featherless-ai`, model `Qwen/Qwen2.5-7B-Instruct`). Không nhúng model 7B vào process Streamlit: RAM Community Cloud không đủ, và đó không phải yêu cầu đề bài. Hạn mức credit: `docs/04-huong-dan-web-va-deploy.md`.
+LLM chỉ gọi Hugging Face Inference Providers (`HF_TOKEN`, `HF_PROVIDER=featherless-ai`, model `Qwen/Qwen2.5-7B-Instruct`). Không nạp model 7B trong process Streamlit. Hạn mức credit: `docs/04-huong-dan-web-va-deploy.md`.
 
-ChromaDB lưu lịch sử bằng embedding hash nội bộ (`src/storage.py`), không tải `all-MiniLM-L6-v2`. Bật «Lưu vào ChromaDB» không kéo model ONNX.
+ChromaDB lưu lịch sử bằng embedding hash nội bộ (`src/pipeline.py`), không tải `all-MiniLM-L6-v2`. Bật «Lưu vào ChromaDB» không kéo model ONNX.
 
 ## KeyBERT trên Cloud
 

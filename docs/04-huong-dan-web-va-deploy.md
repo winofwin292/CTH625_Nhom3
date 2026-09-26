@@ -1,12 +1,12 @@
 # Cấu hình, chạy lần đầu, cập nhật dữ liệu, train lại, deploy
 
-Một file cho thao tác hàng ngày. Lý thuyết: `docs/01`. Kiến trúc: `docs/02`. Chi tiết cell notebook/Colab: `docs/03`.
+Lý thuyết: `docs/01`. Kiến trúc: `docs/02`. Fit TF-IDF: `docs/03`.
 
-Nhóm chốt **LLM chỉ qua Hugging Face Inference Providers**. Không chạy Qwen 7B trên máy (Ollama / load model trong Streamlit).
+LLM chỉ gọi qua Hugging Face Inference Providers. Không chạy Qwen 7B trên máy.
 
-## 1. Cấu hình Hugging Face (làm một lần sau khi clone)
+## 1. Cấu hình Hugging Face
 
-Mỗi thành viên dùng **token của chính mình**. Không commit `.env`, không dán `HF_TOKEN` lên Git/chat.
+Dùng token của tài khoản đang chạy. Không commit `.env`, không dán `HF_TOKEN` lên Git.
 
 1. Tài khoản [huggingface.co](https://huggingface.co), xác nhận email.
 2. Token **fine-grained** với quyền **Make calls to Inference Providers**: [tạo token sẵn quyền](https://huggingface.co/settings/tokens/new?ownUserPermissions=inference.serverless.write&tokenType=fineGrained). Token chỉ *Read* sẽ bị `403`. Sửa token cũ: tick Inference **của user** (không phải org) rồi **Save token**.
@@ -63,7 +63,7 @@ Làm theo thứ tự: **thu thập → train lại TF-IDF → restart web**. Kh�
 | Thêm / làm mới bài báo VJOL | `python scripts/collect_corpus.py` |
 | Thêm / làm mới văn bản QPPL | `python scripts/collect_hanh_chinh.py` (bỏ qua ID đã có) |
 | Thêm tiểu luận / luận văn | Bỏ PDF vào `data/corpus/tieu_luan/`, chạy `python scripts/extract_tieu_luan.py` |
-| Fit lại TF-IDF | Mở `notebooks/train_keyword_extraction.ipynb`, chạy các cell fit, ghi `models/tfidf_vectorizer.joblib` |
+| Fit lại TF-IDF | Mở `notebooks/train_keyword_extraction.ipynb`, chạy các ô. Notebook không import `src/` |
 | Web nhận vectorizer mới | Restart Streamlit |
 
 ChromaDB **không** tự cập nhật khi corpus đổi. Lịch sử trên web là các lần người dùng đã bấm tóm tắt và bật «Lưu vào ChromaDB». Không xóa `data/chroma/` trừ khi muốn làm trống lịch sử demo.
@@ -79,7 +79,7 @@ Chi tiết nguồn corpus: `data/corpus/README.md`. Chi tiết cell notebook / C
 | Chỉ sửa prompt LLM / Streamlit | Không | Restart web là đủ |
 | KeyBERT / `vietnamese-bi-encoder` | Không | Pretrained; không có tập từ khóa vàng nên không fine-tune |
 
-Train = fit `TfidfVectorizer`, không phải fine-tune Qwen. Local: `pip install -r requirements-train.txt` rồi mở notebook từ **thư mục gốc repo**.
+Train = fit `TfidfVectorizer`, không phải fine-tune Qwen. Local: `pip install -r requirements-train.txt`, rồi mở notebook và chạy các ô. Chi tiết: `docs/03-huong-dan-train.md`.
 
 ## 6. Lỗi LLM thường gặp
 

@@ -62,3 +62,5 @@ docs/KiemThu/
 huggingface/
 docs/_extract_tmp.txt
 *.log
+
+nop/

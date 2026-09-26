@@ -34,7 +34,7 @@ Nguồn: `docs/DoAnMonHoc_2026.docx` (Đồ án học phần Xử lý ngôn ng�
 - Dùng từ khóa ở bước 2 làm **chỉ dẫn ngữ nghĩa (semantic anchors)**.
 - Thiết kế prompt điều khiển LLM mã nguồn mở (Vistral-7B-Chat, PhoGPT, hoặc Qwen-2.5-7B-Instruct) để tạo văn bản tóm tắt.
 
-## Điểm đề bài không nêu (cần nhóm chốt, không tự bịa)
+## Đề bài không ghi
 
 - Tên 4 thành viên.
 - Bộ ngữ liệu huấn luyện TF-IDF (đề tài 7 không gắn URL dataset như một số đề khác).

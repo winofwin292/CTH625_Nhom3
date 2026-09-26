@@ -14,7 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.io_text import InputError, read_path
+from src.text import InputError, read_path
 
 OUT_DIR = PROJECT_ROOT / "data" / "corpus" / "tieu_luan"
 MIN_CHARS = 8000

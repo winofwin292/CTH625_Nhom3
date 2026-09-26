@@ -1,21 +1,124 @@
-"""Tiền xử lý tiếng Việt: tách từ, từ dừng, lọc từ loại.
-
-Tách từ và POS dùng underthesea vì đề bài yêu cầu lọc Danh từ, Động từ, Tính từ
-(phương pháp TF-IDF). pyvi không có gán nhãn từ loại.
-
-Nhãn POS: wiki underthesea (UTS) — N/Nc/Np/Nu/Ny danh từ, V/Vy động từ, A tính từ.
-Cách lọc: giữ nhãn bắt đầu bằng N, V hoặc A.
-"""
+"""Đọc .txt/.pdf, tách từ và lọc từ dừng, từ loại."""
 
 from __future__ import annotations
 
 import re
 import unicodedata
 from functools import lru_cache
+from io import BytesIO
+from pathlib import Path
 
+from pypdf import PdfReader
 from underthesea import pos_tag, sent_tokenize, word_tokenize
 
 from src.config import POS_KEEP_PREFIXES, STOPWORDS_PATH
+
+SUPPORTED_SUFFIXES = {".txt", ".pdf"}
+
+
+class InputError(ValueError):
+    """Lỗi đọc file đầu vào."""
+
+
+def read_txt_bytes(data: bytes) -> str:
+    for encoding in ("utf-8-sig", "utf-8", "utf-16"):
+        try:
+            return data.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    raise InputError("Không đọc được file .txt. Hãy lưu file ở encoding UTF-8.")
+
+
+def repair_pdf_extracted_text(text: str) -> str:
+    """Nối mảnh chữ PDF (mỗi glyph một dòng) thành từ tiếng Việt liền.
+
+    Dòng trống (cột / đoạn) được giữ làm ranh giới, không dính hai cụm khác nhau.
+    """
+    pieces: list[str] = []
+    buf = ""
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            if buf:
+                pieces.append(buf)
+                buf = ""
+            continue
+        if not buf:
+            buf = line
+            continue
+        last = buf.split()[-1]
+        if len(line) <= 3 or len(last) <= 2:
+            buf += line
+        else:
+            buf += " " + line
+    if buf:
+        pieces.append(buf)
+    return "\n\n".join(pieces).strip()
+
+
+_VN_LETTER = (
+    r"A-Za-zÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢ"
+    r"ÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợ"
+    r"ùúủũụưừứửữựỳýỷỹỵđ"
+)
+_JOIN_LETTER_NEXT = re.compile(rf"(?<=\s)([{_VN_LETTER}])\s+(?=[{_VN_LETTER}])")
+_JOIN_LETTER_PREV = re.compile(rf"(?<=[{_VN_LETTER}])\s+([{_VN_LETTER}])(?=\s|$|[.,;:!?])")
+_JOIN_ONSET = re.compile(
+    rf"(?<=\s)((?:gi|th|nh|ng|ph|kh|tr|qu|ch|gh|ngh))\s+(?=[{_VN_LETTER}])",
+    re.IGNORECASE,
+)
+
+
+def _join_isolated_letters(text: str) -> str:
+    """Nối chữ cái đứng một mình do PDF layout ('h ọc' → 'học', 'gia n' → 'gian')."""
+    previous = None
+    while previous != text:
+        previous = text
+        text = _JOIN_LETTER_NEXT.sub(r"\1", text)
+        text = _JOIN_LETTER_PREV.sub(r"\1", text)
+        text = _JOIN_ONSET.sub(r"\1", text)
+    return text
+
+
+def _extract_pdf_page(page) -> str:
+    try:
+        layout = page.extract_text(extraction_mode="layout") or ""
+    except Exception:
+        layout = ""
+    if layout.strip():
+        collapsed = re.sub(r"[ \t]{2,}", " ", layout)
+        return _join_isolated_letters(collapsed)
+    raw = page.extract_text() or ""
+    return repair_pdf_extracted_text(raw)
+
+
+def read_pdf_bytes(data: bytes) -> str:
+    reader = PdfReader(BytesIO(data))
+    pages = [_extract_pdf_page(page) for page in reader.pages]
+    text = "\n".join(pages).strip()
+    if not text:
+        raise InputError("File PDF không có lớp văn bản (có thể là bản scan).")
+    return text
+
+
+def read_upload(name: str, data: bytes) -> str:
+    suffix = Path(name).suffix.lower()
+    if suffix == ".txt":
+        return read_txt_bytes(data)
+    if suffix == ".pdf":
+        return read_pdf_bytes(data)
+    raise InputError("Chỉ hỗ trợ .txt và .pdf.")
+
+
+def read_path(path: str | Path) -> str:
+    file_path = Path(path)
+    if not file_path.exists():
+        raise InputError(f"Không tìm thấy file: {file_path}")
+    return read_upload(file_path.name, file_path.read_bytes())
+
+
+def list_text_files(root: str | Path) -> list[Path]:
+    return sorted(path for path in Path(root).rglob("*.txt") if path.is_file())
 
 _PUNCT_OR_DIGIT = re.compile(r"^[\W\d_]+$", re.UNICODE)
 
@@ -156,3 +259,4 @@ def content_tokens(text: str, use_pos: bool = True) -> list[tuple[str, str]]:
 
 def tokens_as_document(pairs: list[tuple[str, str]]) -> str:
     return " ".join(to_phobert_token(token) for token, _ in pairs)
+

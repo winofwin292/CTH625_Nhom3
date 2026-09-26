@@ -3,8 +3,8 @@
 import streamlit as st
 
 from src.config import METHOD_KEYBERT, METHOD_TFIDF
-from src.io_text import InputError, read_upload
-from src.storage import list_recent
+from src.pipeline import list_recent
+from src.text import InputError, read_upload
 
 st.set_page_config(page_title="Tóm tắt theo từ khóa", layout="wide")
 st.title("Tóm tắt văn bản dựa trên trích xuất từ khóa")
